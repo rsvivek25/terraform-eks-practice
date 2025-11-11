@@ -37,3 +37,13 @@ output "nat_gateway_public_ip" {
   description = "NAT Gateway public IP"
   value       = module.eks_network.nat_gateway_public_ip
 }
+
+output "eks_cluster_security_group_id" {
+  description = "Security group ID for EKS cluster"
+  value       = module.eks_network.eks_cluster_security_group_id
+}
+
+output "eks_cluster_security_group_name" {
+  description = "Security group name for EKS cluster"
+  value       = module.eks_network.eks_cluster_security_group_name
+}

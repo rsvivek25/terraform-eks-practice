@@ -65,3 +65,52 @@ resource "aws_route_table_association" "eks_private" {
   subnet_id      = aws_subnet.eks_private[count.index].id
   route_table_id = aws_route_table.eks_private.id
 }
+
+################################################################################
+# Security Group for EKS Cluster
+################################################################################
+
+resource "aws_security_group" "eks_cluster" {
+  name_prefix = "${var.name_prefix}-eks-cluster-sg-"
+  description = "Security group for EKS cluster control plane"
+  vpc_id      = data.aws_vpc.existing.id
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-eks-cluster-sg"
+    }
+  )
+}
+
+# Allow all outbound traffic
+resource "aws_vpc_security_group_egress_rule" "eks_cluster_egress" {
+  security_group_id = aws_security_group.eks_cluster.id
+  description       = "Allow all outbound traffic"
+
+  ip_protocol = "-1"
+  cidr_ipv4   = "0.0.0.0/0"
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-eks-cluster-egress"
+    }
+  )
+}
+
+# Allow all inbound traffic from VPC CIDR
+resource "aws_vpc_security_group_ingress_rule" "eks_cluster_ingress_vpc" {
+  security_group_id = aws_security_group.eks_cluster.id
+  description       = "Allow all inbound traffic from VPC CIDR"
+
+  ip_protocol = "-1"
+  cidr_ipv4   = var.vpc_cidr_block
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-eks-cluster-ingress-vpc"
+    }
+  )
+}

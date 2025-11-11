@@ -7,6 +7,7 @@ aws_region   = "us-east-1"
 
 # Existing Infrastructure (Update these with your actual IDs)
 vpc_id         = "vpc-0457de39c6afcb5c5"  # Replace with your VPC ID
+vpc_cidr_block = "192.168.0.0/16"         # Replace with your VPC CIDR block
 nat_gateway_id = "nat-066241edc40bc430c"  # Replace with your NAT Gateway ID
 
 # Availability Zones

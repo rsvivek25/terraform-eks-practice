@@ -43,6 +43,7 @@ module "eks_network" {
 
   name_prefix        = "${var.project_name}-${var.environment}"
   vpc_id             = var.vpc_id
+  vpc_cidr_block     = var.vpc_cidr_block
   nat_gateway_id     = var.nat_gateway_id
   cluster_name       = "${var.project_name}-${var.environment}-eks"
   availability_zones = var.availability_zones

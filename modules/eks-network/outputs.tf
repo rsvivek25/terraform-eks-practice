@@ -37,3 +37,13 @@ output "nat_gateway_public_ip" {
   description = "Public IP of the NAT Gateway"
   value       = data.aws_nat_gateway.existing.public_ip
 }
+
+output "eks_cluster_security_group_id" {
+  description = "ID of the security group for EKS cluster"
+  value       = aws_security_group.eks_cluster.id
+}
+
+output "eks_cluster_security_group_name" {
+  description = "Name of the security group for EKS cluster"
+  value       = aws_security_group.eks_cluster.name
+}

@@ -21,6 +21,11 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "vpc_cidr_block" {
+  description = "CIDR block of the VPC"
+  type        = string
+}
+
 variable "nat_gateway_id" {
   description = "ID of the existing NAT Gateway"
   type        = string

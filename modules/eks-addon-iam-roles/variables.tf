@@ -7,16 +7,6 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "oidc_provider_arn" {
-  description = "ARN of the OIDC provider for the EKS cluster"
-  type        = string
-}
-
-variable "oidc_provider" {
-  description = "OIDC provider URL without https:// prefix"
-  type        = string
-}
-
 ################################################################################
 # Add-on Enable/Disable Flags
 ################################################################################

@@ -1,6 +1,8 @@
 # EKS Add-on IAM Roles Module
 
-This module creates IAM roles and policies for common EKS add-ons using IRSA (IAM Roles for Service Accounts).
+This module creates IAM roles and policies for common EKS add-ons using **EKS Pod Identity** for service account authentication.
+
+> **Note:** This module uses EKS Pod Identity (the recommended approach) instead of IRSA (IAM Roles for Service Accounts). Pod Identity is simpler and doesn't require OIDC provider configuration.
 
 > **Note:** AWS Load Balancer Controller is pre-installed in EKS Auto Mode clusters and does not require additional IAM role configuration.
 
@@ -11,7 +13,8 @@ This module creates IAM roles and policies for common EKS add-ons using IRSA (IA
 
 ## Features
 
-- ✅ IRSA (IAM Roles for Service Accounts) integration
+- ✅ **EKS Pod Identity** integration - Simpler than IRSA
+- ✅ Automatic pod identity associations for service accounts
 - ✅ Conditional creation - enable only the add-ons you need
 - ✅ Follows AWS best practices for IAM permissions
 - ✅ Reusable across multiple environments
@@ -25,9 +28,7 @@ This module creates IAM roles and policies for common EKS add-ons using IRSA (IA
 module "eks_addon_iam_roles" {
   source = "../../modules/eks-addon-iam-roles"
 
-  cluster_name       = "my-eks-cluster"
-  oidc_provider_arn  = module.eks.oidc_provider_arn
-  oidc_provider      = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = "my-eks-cluster"
 
   # Enable the add-ons you need
   enable_efs_csi_driver = true
@@ -37,6 +38,9 @@ module "eks_addon_iam_roles" {
     Environment = "production"
     ManagedBy   = "Terraform"
   }
+
+  # Module depends on EKS cluster being created first
+  depends_on = [module.eks]
 }
 ```
 
@@ -46,9 +50,7 @@ module "eks_addon_iam_roles" {
 module "eks_addon_iam_roles" {
   source = "../../modules/eks-addon-iam-roles"
 
-  cluster_name       = var.cluster_name
-  oidc_provider_arn  = module.eks.oidc_provider_arn
-  oidc_provider      = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = var.cluster_name
 
   # Enable both add-ons
   enable_efs_csi_driver = true
@@ -61,24 +63,26 @@ module "eks_addon_iam_roles" {
   ]
 
   tags = var.tags
+
+  depends_on = [module.eks]
 }
 ```
 
 ### Using with EKS Add-ons
 
+**Important:** When using Pod Identity, you don't need to specify `service_account_role_arn` in the add-on configuration. The Pod Identity associations automatically link the IAM roles to the service accounts.
+
 ```hcl
 locals {
   cluster_addons = {
-    # EFS CSI Driver
+    # EFS CSI Driver - Pod Identity handles the IAM role association
     aws-efs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+      most_recent = true
     }
 
-    # External DNS
+    # External DNS - Pod Identity handles the IAM role association
     external-dns = {
-      most_recent              = true
-      service_account_role_arn = module.eks_addon_iam_roles.external_dns_role_arn
+      most_recent = true
     }
   }
 }
@@ -104,8 +108,6 @@ module "eks" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | cluster_name | Name of the EKS cluster | `string` | n/a | yes |
-| oidc_provider_arn | ARN of the OIDC provider for the EKS cluster | `string` | n/a | yes |
-| oidc_provider | OIDC provider URL without https:// prefix | `string` | n/a | yes |
 | enable_efs_csi_driver | Enable IAM role for EFS CSI Driver add-on | `bool` | `false` | no |
 | enable_external_dns | Enable IAM role for External DNS add-on | `bool` | `false` | no |
 | external_dns_route53_zone_arns | List of Route53 hosted zone ARNs that External DNS can manage | `list(string)` | `["arn:aws:route53:::hostedzone/*"]` | no |
@@ -117,9 +119,11 @@ module "eks" {
 |------|-------------|
 | efs_csi_driver_role_arn | ARN of the IAM role for EFS CSI Driver |
 | efs_csi_driver_role_name | Name of the IAM role for EFS CSI Driver |
+| efs_csi_driver_pod_identity_association_id | ID of the EKS Pod Identity Association for EFS CSI Driver |
 | external_dns_role_arn | ARN of the IAM role for External DNS |
 | external_dns_role_name | Name of the IAM role for External DNS |
 | external_dns_policy_arn | ARN of the IAM policy for External DNS |
+| external_dns_pod_identity_association_id | ID of the EKS Pod Identity Association for External DNS |
 
 ## IAM Permissions
 
@@ -138,12 +142,21 @@ module "eks" {
 
 ## Service Account Configuration
 
-Each add-on expects a specific service account in the `kube-system` namespace:
+Each add-on expects a specific service account in the `kube-system` namespace. The module automatically creates Pod Identity associations for these service accounts:
 
 - **EFS CSI Driver**: `efs-csi-controller-sa`
 - **External DNS**: `external-dns`
 
 > **Note:** AWS Load Balancer Controller is pre-installed in EKS Auto Mode and manages its own service account automatically.
+
+## Pod Identity vs IRSA
+
+This module uses **EKS Pod Identity** which offers several advantages over IRSA:
+
+✅ **Simpler Setup** - No OIDC provider configuration needed  
+✅ **Automatic Association** - Pod Identity associations handle the linking  
+✅ **Better Security** - Uses AWS STS service principal instead of web identity  
+✅ **Easier Management** - Less infrastructure to manage  
 
 ## Security Considerations
 
@@ -151,7 +164,7 @@ Each add-on expects a specific service account in the `kube-system` namespace:
 
 2. **Least Privilege**: Enable only the add-ons you actually need by setting the corresponding `enable_*` flags.
 
-3. **IRSA**: All roles use IRSA which provides temporary credentials and eliminates the need to store AWS credentials in pods.
+3. **Pod Identity**: All roles use EKS Pod Identity which provides temporary credentials and eliminates the need to store AWS credentials in pods.
 
 ## License
 

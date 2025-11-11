@@ -2,6 +2,8 @@
 
 This guide shows how to use the `eks-addon-iam-roles` module in different environments.
 
+> **Note:** This module uses **EKS Pod Identity** instead of IRSA. Pod Identity is simpler and doesn't require OIDC provider configuration.
+
 > **Note:** AWS Load Balancer Controller is pre-installed in EKS Auto Mode clusters and does not require additional IAM role configuration.
 
 ## Quick Start
@@ -20,9 +22,7 @@ In your environment's `main.tf` or create a new file `addon-iam-roles.tf`:
 module "eks_addon_iam_roles" {
   source = "../../../modules/eks-addon-iam-roles"
 
-  cluster_name      = var.cluster_name
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = var.cluster_name
 
   # Enable the add-ons you need
   enable_efs_csi_driver = true
@@ -34,6 +34,9 @@ module "eks_addon_iam_roles" {
   # ]
 
   tags = var.tags
+
+  # Module depends on EKS cluster being created first
+  depends_on = [module.eks]
 }
 ```
 
@@ -41,24 +44,25 @@ module "eks_addon_iam_roles" {
 
 Add or update the `locals` block in your `main.tf`:
 
+**Important:** When using Pod Identity, you don't need to specify `service_account_role_arn` in the add-on configuration. The Pod Identity associations automatically link the IAM roles to the service accounts.
+
 ```hcl
 locals {
   # ... other locals ...
 
-  # Merge user-provided add-ons with add-ons that require IAM roles
+  # Merge user-provided add-ons with required add-ons
+  # Note: With Pod Identity, IAM roles are associated automatically
   cluster_addons = merge(
     var.cluster_addons,
     {
       # Amazon EFS CSI Driver
       aws-efs-csi-driver = {
-        most_recent              = true
-        service_account_role_arn = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+        most_recent = true
       }
 
       # External DNS
       external-dns = {
-        most_recent              = true
-        service_account_role_arn = module.eks_addon_iam_roles.external_dns_role_arn
+        most_recent = true
       }
     }
   )
@@ -115,14 +119,14 @@ output "cluster_addons" {
 module "eks_addon_iam_roles" {
   source = "../../../modules/eks-addon-iam-roles"
 
-  cluster_name      = "eks-nonprod-dev"
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = "eks-nonprod-dev"
 
   enable_efs_csi_driver = true
   enable_external_dns   = true
 
   tags = var.tags
+
+  depends_on = [module.eks]
 }
 ```
 
@@ -131,9 +135,7 @@ module "eks_addon_iam_roles" {
 module "eks_addon_iam_roles" {
   source = "../../../modules/eks-addon-iam-roles"
 
-  cluster_name      = "eks-nonprod-staging"
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = "eks-nonprod-staging"
 
   enable_efs_csi_driver = true
   enable_external_dns   = true
@@ -144,6 +146,8 @@ module "eks_addon_iam_roles" {
   ]
 
   tags = var.tags
+
+  depends_on = [module.eks]
 }
 ```
 
@@ -152,9 +156,7 @@ module "eks_addon_iam_roles" {
 module "eks_addon_iam_roles" {
   source = "../../../modules/eks-addon-iam-roles"
 
-  cluster_name      = "eks-prod"
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = "eks-prod"
 
   enable_efs_csi_driver = true
   enable_external_dns   = true

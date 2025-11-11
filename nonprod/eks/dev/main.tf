@@ -48,9 +48,7 @@ data "aws_caller_identity" "current" {}
 module "eks_addon_iam_roles" {
   source = "../../../modules/eks-addon-iam-roles"
 
-  cluster_name      = var.cluster_name
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  cluster_name = var.cluster_name
 
   # Enable the add-ons you need
   enable_efs_csi_driver = true
@@ -62,6 +60,9 @@ module "eks_addon_iam_roles" {
   # ]
 
   tags = var.tags
+
+  # Module depends on EKS cluster being created first
+  depends_on = [module.eks]
 }
 
 ################################################################################
@@ -77,20 +78,20 @@ locals {
     [] # "none" or "false"
   )
 
-  # Merge user-provided add-ons with add-ons that require IAM roles
+  # Merge user-provided add-ons with required add-ons
+  # Note: With Pod Identity, IAM roles are associated automatically via pod identity associations
+  # No need to specify service_account_role_arn in the addon configuration
   cluster_addons = merge(
     var.cluster_addons,
     {
       # Amazon EFS CSI Driver - Enables dynamic provisioning of EFS volumes
       aws-efs-csi-driver = {
-        most_recent              = true
-        service_account_role_arn = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+        most_recent = true
       }
 
-      # External DNS - Automatically creates DNS records for services and ingresses
+      # External DNS - Automatically creates DNS records for services and ingresses  
       external-dns = {
-        most_recent              = true
-        service_account_role_arn = module.eks_addon_iam_roles.external_dns_role_arn
+        most_recent = true
       }
     }
   )

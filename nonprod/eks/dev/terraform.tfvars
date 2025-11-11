@@ -68,7 +68,7 @@ cloudwatch_log_group_class             = "STANDARD"
 ################################################################################
 
 enable_cluster_creator_admin_permissions = true
-additional_security_group_ids         = "sg-098cb306b2a615258"
+additional_security_group_ids            = ["sg-098cb306b2a615258"]
 enable_cluster_deletion_protection       = true
 
 ################################################################################

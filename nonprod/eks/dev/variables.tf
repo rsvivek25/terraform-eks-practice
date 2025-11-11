@@ -155,9 +155,9 @@ variable "enable_cluster_creator_admin_permissions" {
 }
 
 variable "additional_security_group_ids" {
-  description = "Additional security group for the cluster"
-  type        = string
-  default     = ""
+  description = "List of additional security group IDs to attach to the cluster"
+  type        = list(string)
+  default     = []
 }
 
 variable "enable_cluster_deletion_protection" {

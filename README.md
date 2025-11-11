@@ -30,14 +30,16 @@ This blueprint implements a multi-account AWS infrastructure strategy with:
 ```
 terraform-environment-blueprint/
 ├── modules/                      # Reusable Terraform modules
-│   ├── network/                  # VPC, Subnets, NAT, IGW, Flow Logs
+│   ├── network/                  # VPC, Subnets, NAT, IGW, Flow Logs (full VPC setup)
+│   ├── eks-network/              # EKS subnets in existing VPC
+│   ├── eks/                      # EKS cluster module
 │   ├── rds/                      # RDS instances with HA and encryption
 │   └── s3/                       # S3 buckets with versioning and lifecycle
 │
 ├── nonprod/                      # NonProd account resources
 │   ├── bootstrap/                # S3 backend & IAM setup (run first)
 │   ├── provisioning-server/      # EC2 server for Terraform execution
-│   ├── network/                  # VPC and networking resources
+│   ├── eks-network/              # EKS subnets and networking resources
 │   ├── security/                 # Security groups and IAM
 │   ├── eks/                      # EKS clusters
 │   ├── rds/                      # Database instances
@@ -46,7 +48,7 @@ terraform-environment-blueprint/
 ├── staging/                      # Staging account resources
 │   ├── bootstrap/
 │   ├── provisioning-server/
-│   ├── network/
+│   ├── eks-network/
 │   ├── security/
 │   ├── eks/
 │   ├── rds/
@@ -55,7 +57,7 @@ terraform-environment-blueprint/
 ├── production/                   # Production account resources
 │   ├── bootstrap/
 │   ├── provisioning-server/
-│   ├── network/
+│   ├── eks-network/
 │   ├── security/
 │   ├── eks/
 │   ├── rds/
@@ -108,13 +110,13 @@ terraform plan -var-file=terraform.tfvars
 terraform apply -var-file=terraform.tfvars
 ```
 
-### Step 3: Deploy Network Infrastructure
+### Step 3: Deploy EKS Network Infrastructure
 
 ```bash
-cd ../network
+cd ../eks-network
 
 # Configure backend in main.tf
-# Edit terraform.tfvars for your network requirements
+# Edit terraform.tfvars for your VPC, NAT Gateway, and subnet requirements
 terraform init
 terraform plan -var-file=terraform.tfvars
 terraform apply -var-file=terraform.tfvars
@@ -147,7 +149,7 @@ graph TD
 
 1. **Bootstrap**: Creates S3 backend and IAM roles
 2. **Provisioning Server**: EC2 instance for Terraform execution
-3. **Network**: VPC, subnets, NAT gateways, internet gateway
+3. **EKS Network**: EKS subnets in existing VPC with NAT Gateway route
 4. **Security**: Security groups, NACLs, IAM policies
 5. **Application Resources**: EKS, RDS, S3 based on requirements
 
@@ -210,10 +212,11 @@ One EC2 instance per account with:
 Each account directory contains a `terraform.tfvars` file for environment-specific settings:
 
 ```hcl
-# nonprod/network/terraform.tfvars
+# nonprod/eks-network/terraform.tfvars
 project_name = "aws-blueprint"
 environment  = "nonprod"
-vpc_cidr     = "10.0.0.0/16"
+vpc_id       = "vpc-xxxxxxxxx"
+nat_gateway_id = "nat-xxxxxxxxx"
 # ... other variables
 ```
 

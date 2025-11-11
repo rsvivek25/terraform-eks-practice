@@ -93,24 +93,6 @@ variable "enabled_cluster_log_types" {
   default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
 
-variable "cloudwatch_log_group_retention_in_days" {
-  description = "Number of days to retain cluster logs in CloudWatch"
-  type        = number
-  default     = 7
-}
-
-variable "cloudwatch_log_group_kms_key_id" {
-  description = "KMS key ID to use for CloudWatch log group encryption"
-  type        = string
-  default     = null
-}
-
-variable "cloudwatch_log_group_class" {
-  description = "Log class for the CloudWatch log group"
-  type        = string
-  default     = "STANDARD"
-}
-
 ################################################################################
 # Access & Security Configuration
 ################################################################################

@@ -101,7 +101,7 @@ argocd_enable_notifications = true
 argocd_enable_dex           = false
 
 # Uncomment and configure if using ALB ingress
-argocd_domain         = "argocd.yourdomain.com"
+argocd_domain         = "argocd-nonprod-dev.ekspilot.com"
 # argocd_certificate_arn = "arn:aws:acm:us-east-1:123456789:certificate/xxx"
 argocd_alb_scheme     = "internal"
 

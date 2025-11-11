@@ -2,134 +2,282 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "S3Permissions",
+      "Sid": "StsIntrospection",
+      "Effect": "Allow",
+      "Action": ["sts:GetCallerIdentity"],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "S3BackendAdminAndRead",
       "Effect": "Allow",
       "Action": [
         "s3:CreateBucket",
         "s3:DeleteBucket",
-        "s3:GetBucketVersioning",
         "s3:PutBucketVersioning",
-        "s3:GetEncryptionConfiguration",
         "s3:PutEncryptionConfiguration",
-        "s3:GetBucketPublicAccessBlock",
-        "s3:PutBucketPublicAccessBlock",
-        "s3:GetLifecycleConfiguration",
-        "s3:PutLifecycleConfiguration",
-        "s3:GetBucketTagging",
-        "s3:PutBucketTagging",
-        "s3:ListBucket",
-        "s3:GetBucketLocation",
-        "s3:GetBucketPolicy",
         "s3:PutBucketPolicy",
-        "s3:DeleteBucketPolicy"
-      ],
-      "Resource": [
-        "arn:aws:s3:::aws-blueprint-nonprod-terraform-state-*"
-      ]
-    },
-    {
-      "Sid": "S3ListBuckets",
-      "Effect": "Allow",
-      "Action": [
-        "s3:ListAllMyBuckets"
+        "s3:DeleteBucketPolicy",
+        "s3:PutBucketTagging",
+        "s3:PutBucketOwnershipControls",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:PutLifecycleConfiguration",
+        "s3:PutBucketAcl",
+        "s3:List*",
+        "s3:Get*",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:AbortMultipartUpload",
+        "s3:ReplicateObject",
+        "s3:ObjectOwnerOverrideToBucketOwner"
       ],
       "Resource": "*"
     },
+
     {
-      "Sid": "DynamoDBPermissions",
+      "Sid": "DynamoDbStateLockAdminAndRead",
       "Effect": "Allow",
       "Action": [
         "dynamodb:CreateTable",
-        "dynamodb:DeleteTable",
-        "dynamodb:DescribeTable",
-        "dynamodb:DescribeContinuousBackups",
         "dynamodb:UpdateTable",
-        "dynamodb:UpdateContinuousBackups",
+        "dynamodb:DeleteTable",
+        "dynamodb:Describe*",
+        "dynamodb:List*",
         "dynamodb:TagResource",
         "dynamodb:UntagResource",
-        "dynamodb:ListTagsOfResource"
-      ],
-      "Resource": [
-        "arn:aws:dynamodb:*:*:table/aws-blueprint-nonprod-terraform-locks"
-      ]
-    },
-    {
-      "Sid": "KMSPermissions",
-      "Effect": "Allow",
-      "Action": [
-        "kms:CreateKey",
-        "kms:CreateAlias",
-        "kms:DeleteAlias",
-        "kms:DescribeKey",
-        "kms:EnableKeyRotation",
-        "kms:DisableKeyRotation",
-        "kms:GetKeyRotationStatus",
-        "kms:GetKeyPolicy",
-        "kms:PutKeyPolicy",
-        "kms:ScheduleKeyDeletion",
-        "kms:TagResource",
-        "kms:UntagResource",
-        "kms:ListResourceTags",
-        "kms:ListAliases"
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:Scan"
       ],
       "Resource": "*"
     },
+
     {
-      "Sid": "IAMRolePermissions",
+      "Sid": "IamAdminForEksInfra",
       "Effect": "Allow",
       "Action": [
         "iam:CreateRole",
         "iam:DeleteRole",
-        "iam:GetRole",
-        "iam:UpdateRole",
+        "iam:UpdateAssumeRolePolicy",
         "iam:AttachRolePolicy",
         "iam:DetachRolePolicy",
         "iam:PutRolePolicy",
         "iam:DeleteRolePolicy",
-        "iam:GetRolePolicy",
-        "iam:ListAttachedRolePolicies",
-        "iam:ListRolePolicies",
+        "iam:CreatePolicy",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
         "iam:TagRole",
         "iam:UntagRole",
-        "iam:ListRoleTags",
-        "iam:PassRole"
-      ],
-      "Resource": [
-        "arn:aws:iam::*:role/aws-blueprint-nonprod-terraform-execution-role"
-      ]
-    },
-    {
-      "Sid": "IAMInstanceProfilePermissions",
-      "Effect": "Allow",
-      "Action": [
+        "iam:TagPolicy",
+        "iam:UntagPolicy",
         "iam:CreateInstanceProfile",
-        "iam:DeleteInstanceProfile",
-        "iam:GetInstanceProfile",
         "iam:AddRoleToInstanceProfile",
         "iam:RemoveRoleFromInstanceProfile",
-        "iam:TagInstanceProfile",
-        "iam:UntagInstanceProfile",
-        "iam:ListInstanceProfileTags"
-      ],
-      "Resource": [
-        "arn:aws:iam::*:instance-profile/aws-blueprint-nonprod-terraform-execution-profile"
-      ]
-    },
-    {
-      "Sid": "IAMReadPermissions",
-      "Effect": "Allow",
-      "Action": [
-        "iam:GetPolicy",
-        "iam:GetPolicyVersion",
-        "iam:ListPolicies"
+        "iam:DeleteInstanceProfile",
+        "iam:CreateOpenIDConnectProvider",
+        "iam:DeleteOpenIDConnectProvider",
+        "iam:Get*",
+        "iam:List*"
       ],
       "Resource": "*"
     },
     {
-      "Sid": "STSPermissions",
+      "Sid": "IamPassRoleScoped",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": [
+        "arn:aws:iam::156041399540:role/terraform-*",
+        "arn:aws:iam::156041399540:role/eks-*",
+        "arn:aws:iam::156041399540:role/cluster-*",
+        "arn:aws:iam::156041399540:role/nodegroup-*"
+      ],
+      "Condition": {
+        "StringEqualsIfExists": {
+          "iam:PassedToService": [
+            "eks.amazonaws.com",
+            "ec2.amazonaws.com",
+            "eks-nodegroup.amazonaws.com",
+            "eks-fargate-pods.amazonaws.com"
+          ]
+        }
+      }
+    },
+
+    {
+      "Sid": "EksAdminAndRead",
       "Effect": "Allow",
       "Action": [
-        "sts:GetCallerIdentity"
+        "eks:CreateCluster",
+        "eks:UpdateClusterConfig",
+        "eks:UpdateClusterVersion",
+        "eks:DeleteCluster",
+        "eks:CreateNodegroup",
+        "eks:UpdateNodegroupConfig",
+        "eks:UpdateNodegroupVersion",
+        "eks:DeleteNodegroup",
+        "eks:CreateFargateProfile",
+        "eks:DeleteFargateProfile",
+        "eks:AssociateEncryptionConfig",
+        "eks:AssociateIdentityProviderConfig",
+        "eks:DisassociateIdentityProviderConfig",
+        "eks:CreateAddon",
+        "eks:UpdateAddon",
+        "eks:DeleteAddon",
+        "eks:AccessKubernetesApi",
+        "eks:TagResource",
+        "eks:UntagResource",
+        "eks:Describe*",
+        "eks:List*"
+      ],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "Ec2VpcNetworkingAdminAndRead",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateVpc",
+        "ec2:DeleteVpc",
+        "ec2:ModifyVpcAttribute",
+        "ec2:CreateSubnet",
+        "ec2:DeleteSubnet",
+        "ec2:ModifySubnetAttribute",
+        "ec2:CreateRouteTable",
+        "ec2:DeleteRouteTable",
+        "ec2:AssociateRouteTable",
+        "ec2:DisassociateRouteTable",
+        "ec2:CreateRoute",
+        "ec2:ReplaceRoute",
+        "ec2:DeleteRoute",
+        "ec2:CreateInternetGateway",
+        "ec2:DeleteInternetGateway",
+        "ec2:AttachInternetGateway",
+        "ec2:DetachInternetGateway",
+        "ec2:AllocateAddress",
+        "ec2:ReleaseAddress",
+        "ec2:CreateNatGateway",
+        "ec2:DeleteNatGateway",
+        "ec2:CreateSecurityGroup",
+        "ec2:DeleteSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:CreateVpcEndpoint",
+        "ec2:DeleteVpcEndpoints",
+        "ec2:CreateDhcpOptions",
+        "ec2:AssociateDhcpOptions",
+        "ec2:DeleteDhcpOptions",
+        "ec2:CreateNetworkInterface",
+        "ec2:DeleteNetworkInterface",
+        "ec2:CreateTags",
+        "ec2:DeleteTags",
+        "ec2:Describe*"
+      ],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "Ec2LaunchTemplatesAndKeys",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateLaunchTemplate",
+        "ec2:DeleteLaunchTemplate",
+        "ec2:CreateLaunchTemplateVersion",
+        "ec2:DeleteLaunchTemplateVersions",
+        "ec2:DescribeLaunchTemplates",
+        "ec2:DescribeLaunchTemplateVersions",
+        "ec2:CreateKeyPair",
+        "ec2:DeleteKeyPair",
+        "ec2:DescribeKeyPairs"
+      ],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "AutoScalingAdminAndRead",
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:CreateAutoScalingGroup",
+        "autoscaling:UpdateAutoScalingGroup",
+        "autoscaling:DeleteAutoScalingGroup",
+        "autoscaling:AttachInstances",
+        "autoscaling:DetachInstances",
+        "autoscaling:SetDesiredCapacity",
+        "autoscaling:TerminateInstanceInAutoScalingGroup",
+        "autoscaling:CreateOrUpdateTags",
+        "autoscaling:DeleteTags",
+        "autoscaling:Describe*"
+      ],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "CloudWatchLogsAdminAndRead",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutRetentionPolicy",
+        "logs:DeleteLogGroup",
+        "logs:Describe*",
+        "logs:Get*",
+        "logs:List*",
+        "logs:TagResource",
+        "logs:UntagResource",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "Elbv2AdminAndRead",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:CreateLoadBalancer",
+        "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:CreateTargetGroup",
+        "elasticloadbalancing:DeleteTargetGroup",
+        "elasticloadbalancing:ModifyLoadBalancerAttributes",
+        "elasticloadbalancing:ModifyTargetGroup",
+        "elasticloadbalancing:ModifyTargetGroupAttributes",
+        "elasticloadbalancing:RegisterTargets",
+        "elasticloadbalancing:DeregisterTargets",
+        "elasticloadbalancing:CreateListener",
+        "elasticloadbalancing:DeleteListener",
+        "elasticloadbalancing:AddTags",
+        "elasticloadbalancing:RemoveTags",
+        "elasticloadbalancing:Describe*"
+      ],
+      "Resource": "*"
+    },
+
+    {
+      "Sid": "KmsMetadataAndGrant",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Describe*",
+        "kms:Get*",
+        "kms:List*",
+        "kms:CreateGrant"
+      ],
+      "Resource": "*"
+    },
+    
+
+    {
+      "Sid": "EcrReadOnlyHelpful",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:Describe*",
+        "ecr:List*",
+        "ecr:GetAuthorizationToken",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
       ],
       "Resource": "*"
     }

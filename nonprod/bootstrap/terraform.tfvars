@@ -1,5 +1,5 @@
 # NonProd Bootstrap Configuration
 
-project_name = "aws-blueprint"
+project_name = "eks-practice"
 environment  = "nonprod"
 aws_region   = "us-east-1"

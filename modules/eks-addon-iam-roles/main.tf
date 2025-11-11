@@ -158,3 +158,75 @@ resource "aws_eks_pod_identity_association" "external_dns" {
     }
   )
 }
+
+################################################################################
+# EKS Add-ons
+################################################################################
+
+# Data source for EFS CSI Driver latest version
+data "aws_eks_addon_version" "efs_csi_driver" {
+  count = var.enable_efs_csi_driver ? 1 : 0
+
+  addon_name         = "aws-efs-csi-driver"
+  kubernetes_version = var.cluster_version
+  most_recent        = true
+}
+
+# EFS CSI Driver Add-on
+resource "aws_eks_addon" "efs_csi_driver" {
+  count = var.enable_efs_csi_driver ? 1 : 0
+
+  cluster_name  = var.cluster_name
+  addon_name    = "aws-efs-csi-driver"
+  addon_version = data.aws_eks_addon_version.efs_csi_driver[0].version
+
+  # Pod Identity configuration
+  pod_identity_association {
+    role_arn        = aws_iam_role.efs_csi_driver[0].arn
+    service_account = "efs-csi-controller-sa"
+  }
+
+  # Wait for Pod Identity association to be created
+  depends_on = [aws_eks_pod_identity_association.efs_csi_driver]
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-efs-csi-driver"
+    }
+  )
+}
+
+# Data source for External DNS latest version
+data "aws_eks_addon_version" "external_dns" {
+  count = var.enable_external_dns ? 1 : 0
+
+  addon_name         = "external-dns"
+  kubernetes_version = var.cluster_version
+  most_recent        = true
+}
+
+# External DNS Add-on
+resource "aws_eks_addon" "external_dns" {
+  count = var.enable_external_dns ? 1 : 0
+
+  cluster_name  = var.cluster_name
+  addon_name    = "external-dns"
+  addon_version = data.aws_eks_addon_version.external_dns[0].version
+
+  # Pod Identity configuration
+  pod_identity_association {
+    role_arn        = aws_iam_role.external_dns[0].arn
+    service_account = "external-dns"
+  }
+
+  # Wait for Pod Identity association to be created
+  depends_on = [aws_eks_pod_identity_association.external_dns]
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.cluster_name}-external-dns"
+    }
+  )
+}

@@ -7,6 +7,11 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "cluster_version" {
+  description = "Kubernetes version of the EKS cluster"
+  type        = string
+}
+
 ################################################################################
 # Add-on Enable/Disable Flags
 ################################################################################

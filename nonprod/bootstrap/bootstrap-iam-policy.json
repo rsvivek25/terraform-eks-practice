@@ -104,7 +104,8 @@
 				"iam:List*",
 				"iam:DeleteRolePermissionsBoundary",
 				"iam:PutRolePermissionsBoundary",
-				"iam:TagOpenIDConnectProvider"
+				"iam:TagOpenIDConnectProvider",
+				"iam:CreateServiceLinkedRole"
 			],
 			"Resource": "*"
 		},

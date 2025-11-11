@@ -42,30 +42,6 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 ################################################################################
-# EKS Add-on IAM Roles Module
-################################################################################
-
-module "eks_addon_iam_roles" {
-  source = "../../../modules/eks-addon-iam-roles"
-
-  cluster_name = var.cluster_name
-
-  # Enable the add-ons you need
-  enable_efs_csi_driver = true
-  enable_external_dns   = true
-
-  # Restrict External DNS to specific hosted zones (optional)
-  # external_dns_route53_zone_arns = [
-  #   "arn:aws:route53:::hostedzone/Z1234567890ABC"
-  # ]
-
-  tags = var.tags
-
-  # Module depends on EKS cluster being created first
-  depends_on = [module.eks]
-}
-
-################################################################################
 # Local Variables
 ################################################################################
 
@@ -78,23 +54,8 @@ locals {
     [] # "none" or "false"
   )
 
-  # Merge user-provided add-ons with required add-ons
-  # Note: With Pod Identity, IAM roles are associated automatically via pod identity associations
-  # No need to specify service_account_role_arn in the addon configuration
-  cluster_addons = merge(
-    var.cluster_addons,
-    {
-      # Amazon EFS CSI Driver - Enables dynamic provisioning of EFS volumes
-      aws-efs-csi-driver = {
-        most_recent = true
-      }
-
-      # External DNS - Automatically creates DNS records for services and ingresses  
-      external-dns = {
-        most_recent = true
-      }
-    }
-  )
+  # Base cluster add-ons (from variables)
+  cluster_addons = var.cluster_addons
 }
 
 ################################################################################
@@ -185,4 +146,29 @@ resource "aws_kms_key" "eks" {
       Name = "${var.cluster_name}-eks-secrets"
     }
   )
+}
+
+################################################################################
+# EKS Add-on IAM Roles Module
+################################################################################
+
+module "eks_addon_iam_roles" {
+  source = "../../../modules/eks-addon-iam-roles"
+
+  cluster_name    = var.cluster_name
+  cluster_version = var.cluster_version
+
+  # Enable the add-ons you need
+  enable_efs_csi_driver = true
+  enable_external_dns   = true
+
+  # Restrict External DNS to specific hosted zones (optional)
+  # external_dns_route53_zone_arns = [
+  #   "arn:aws:route53:::hostedzone/Z1234567890ABC"
+  # ]
+
+  tags = var.tags
+
+  # IAM roles and Pod Identity associations must be created AFTER the cluster
+  depends_on = [module.eks]
 }

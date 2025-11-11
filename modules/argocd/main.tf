@@ -34,6 +34,13 @@ resource "helm_release" "argocd" {
     yamlencode({
       global = {
         domain = var.server_host
+        # Global tolerations applied to all ArgoCD components including init jobs
+        tolerations = [
+          {
+            key      = "CriticalAddonsOnly"
+            operator = "Exists"
+          }
+        ]
       }
 
       # Controller

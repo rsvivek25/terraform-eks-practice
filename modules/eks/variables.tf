@@ -13,14 +13,19 @@ variable "cluster_version" {
   default     = "1.31"
 }
 
+################################################################################
+# Network Configuration
+################################################################################
+
+variable "vpc_id" {
+  description = "VPC ID where EKS cluster will be deployed"
+  type        = string
+}
+
 variable "subnet_ids" {
   description = "List of subnet IDs for EKS cluster (private subnets recommended)"
   type        = list(string)
 }
-
-################################################################################
-# Network Configuration
-################################################################################
 
 variable "endpoint_private_access" {
   description = "Enable private API server endpoint"
@@ -70,29 +75,6 @@ variable "enabled_cluster_log_types" {
   default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
 
-variable "cloudwatch_log_group_retention_in_days" {
-  description = "Number of days to retain cluster logs in CloudWatch"
-  type        = number
-  default     = 7
-}
-
-variable "cloudwatch_log_group_kms_key_id" {
-  description = "KMS key ID to use for CloudWatch log group encryption. If not specified, uses the KMS key for cluster encryption"
-  type        = string
-  default     = null
-}
-
-variable "cloudwatch_log_group_class" {
-  description = "Log class for the CloudWatch log group. Valid values are STANDARD or INFREQUENT_ACCESS"
-  type        = string
-  default     = "STANDARD"
-
-  validation {
-    condition     = contains(["STANDARD", "INFREQUENT_ACCESS"], var.cloudwatch_log_group_class)
-    error_message = "cloudwatch_log_group_class must be STANDARD or INFREQUENT_ACCESS"
-  }
-}
-
 ################################################################################
 # Access & Security Configuration
 ################################################################################
@@ -121,14 +103,8 @@ variable "enable_cluster_deletion_protection" {
 }
 
 ################################################################################
-# Add-ons & Advanced Configuration
+# Upgrade & Advanced Configuration
 ################################################################################
-
-variable "bootstrap_self_managed_addons" {
-  description = "Whether to bootstrap self-managed add-ons"
-  type        = bool
-  default     = false
-}
 
 variable "support_type" {
   description = "Support type for the cluster (STANDARD, EXTENDED)"

@@ -4,37 +4,37 @@
 
 output "cluster_id" {
   description = "The ID of the EKS cluster"
-  value       = aws_eks_cluster.main.id
+  value       = module.eks.cluster_id
 }
 
 output "cluster_name" {
   description = "The name of the EKS cluster"
-  value       = aws_eks_cluster.main.name
+  value       = module.eks.cluster_name
 }
 
 output "cluster_arn" {
   description = "The ARN of the EKS cluster"
-  value       = aws_eks_cluster.main.arn
+  value       = module.eks.cluster_arn
 }
 
 output "cluster_endpoint" {
   description = "Endpoint for the EKS cluster API server"
-  value       = aws_eks_cluster.main.endpoint
+  value       = module.eks.cluster_endpoint
 }
 
 output "cluster_version" {
   description = "The Kubernetes server version of the cluster"
-  value       = aws_eks_cluster.main.version
+  value       = module.eks.cluster_version
 }
 
 output "cluster_platform_version" {
   description = "The platform version for the cluster"
-  value       = aws_eks_cluster.main.platform_version
+  value       = module.eks.cluster_platform_version
 }
 
 output "cluster_status" {
   description = "The status of the EKS cluster"
-  value       = aws_eks_cluster.main.status
+  value       = module.eks.cluster_status
 }
 
 ################################################################################
@@ -43,7 +43,7 @@ output "cluster_status" {
 
 output "cluster_certificate_authority_data" {
   description = "Base64 encoded certificate data required to communicate with the cluster"
-  value       = aws_eks_cluster.main.certificate_authority[0].data
+  value       = module.eks.cluster_certificate_authority_data
   sensitive   = true
 }
 
@@ -53,7 +53,7 @@ output "cluster_certificate_authority_data" {
 
 output "cluster_oidc_issuer_url" {
   description = "The URL on the EKS cluster OIDC Issuer"
-  value       = try(aws_eks_cluster.main.identity[0].oidc[0].issuer, "")
+  value       = module.eks.cluster_oidc_issuer_url
 }
 
 ################################################################################
@@ -62,7 +62,7 @@ output "cluster_oidc_issuer_url" {
 
 output "cluster_security_group_id" {
   description = "Security group ID attached to the EKS cluster"
-  value       = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
+  value       = module.eks.cluster_security_group_id
 }
 
 ################################################################################
@@ -71,10 +71,24 @@ output "cluster_security_group_id" {
 
 output "kms_key_id" {
   description = "KMS key ID used for cluster encryption"
-  value       = var.kms_key_arn != "" ? var.kms_key_arn : aws_kms_key.eks[0].id
+  value       = module.eks.kms_key_id
 }
 
 output "kms_key_arn" {
   description = "KMS key ARN used for cluster encryption"
-  value       = var.kms_key_arn != "" ? var.kms_key_arn : aws_kms_key.eks[0].arn
+  value       = module.eks.kms_key_arn
+}
+
+################################################################################
+# Access Configuration
+################################################################################
+
+output "cluster_iam_role_arn" {
+  description = "IAM role ARN of the EKS cluster"
+  value       = module.eks.cluster_iam_role_arn
+}
+
+output "access_entries" {
+  description = "Map of access entries created and their attributes"
+  value       = module.eks.access_entries
 }

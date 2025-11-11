@@ -72,10 +72,9 @@ module "eks" {
   bootstrap_cluster_creator_admin_permissions = var.bootstrap_cluster_creator_admin_permissions
   enable_cluster_deletion_protection          = var.enable_cluster_deletion_protection
 
-  # Add-ons & Advanced Configuration
-  bootstrap_self_managed_addons = var.bootstrap_self_managed_addons
-  support_type                  = var.support_type
-  zonal_shift_enabled           = var.zonal_shift_enabled
+  # Upgrade & Advanced Configuration
+  support_type        = var.support_type
+  zonal_shift_enabled = var.zonal_shift_enabled
 
   # Tags
   tags = var.tags

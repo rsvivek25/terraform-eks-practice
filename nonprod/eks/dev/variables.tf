@@ -116,14 +116,8 @@ variable "enable_cluster_deletion_protection" {
 }
 
 ################################################################################
-# Add-ons & Advanced Configuration
+# Upgrade & Advanced Configuration
 ################################################################################
-
-variable "bootstrap_self_managed_addons" {
-  description = "Whether to bootstrap self-managed add-ons"
-  type        = bool
-  default     = false
-}
 
 variable "support_type" {
   description = "Support type for the cluster (STANDARD, EXTENDED)"

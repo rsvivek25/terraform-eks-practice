@@ -15,16 +15,3 @@ variable "environment" {
   type        = string
   default     = "nonprod"
 }
-
-variable "trusted_account_ids" {
-  description = "List of AWS account IDs allowed to assume the Terraform execution role"
-  type        = list(string)
-  default     = []
-}
-
-variable "external_id" {
-  description = "External ID for cross-account role assumption"
-  type        = string
-  default     = "terraform-bootstrap-external-id"
-  sensitive   = true
-}

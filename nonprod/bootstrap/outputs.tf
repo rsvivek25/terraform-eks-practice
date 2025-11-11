@@ -28,26 +28,6 @@ output "kms_key_arn" {
   value       = aws_kms_key.terraform_state.arn
 }
 
-output "terraform_execution_role_arn" {
-  description = "ARN of the IAM role for Terraform execution"
-  value       = aws_iam_role.terraform_execution.arn
-}
-
-output "terraform_execution_role_name" {
-  description = "Name of the IAM role for Terraform execution"
-  value       = aws_iam_role.terraform_execution.name
-}
-
-output "terraform_execution_instance_profile_arn" {
-  description = "ARN of the instance profile for Terraform execution"
-  value       = aws_iam_instance_profile.terraform_execution.arn
-}
-
-output "terraform_execution_instance_profile_name" {
-  description = "Name of the instance profile for Terraform execution"
-  value       = aws_iam_instance_profile.terraform_execution.name
-}
-
 output "backend_config" {
   description = "Backend configuration for other Terraform workspaces"
   value = {

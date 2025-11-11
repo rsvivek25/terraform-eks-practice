@@ -131,64 +131,6 @@ resource "aws_dynamodb_table" "terraform_locks" {
 }
 
 ################################################################################
-# IAM Role for Terraform Execution
-################################################################################
-
-resource "aws_iam_role" "terraform_execution" {
-  name               = "${var.project_name}-${var.environment}-terraform-execution-role"
-  assume_role_policy = data.aws_iam_policy_document.terraform_execution_assume.json
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-terraform-execution-role"
-  }
-}
-
-data "aws_iam_policy_document" "terraform_execution_assume" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-
-  # Allow cross-account access from provisioning server
-  dynamic "statement" {
-    for_each = var.trusted_account_ids
-    content {
-      effect = "Allow"
-
-      principals {
-        type        = "AWS"
-        identifiers = ["arn:aws:iam::${statement.value}:root"]
-      }
-
-      actions = ["sts:AssumeRole"]
-
-      condition {
-        test     = "StringEquals"
-        variable = "sts:ExternalId"
-        values   = [var.external_id]
-      }
-    }
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "terraform_execution_admin" {
-  role       = aws_iam_role.terraform_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
-
-# Create instance profile for EC2
-resource "aws_iam_instance_profile" "terraform_execution" {
-  name = "${var.project_name}-${var.environment}-terraform-execution-profile"
-  role = aws_iam_role.terraform_execution.name
-}
-
-################################################################################
 # Data Sources
 ################################################################################
 

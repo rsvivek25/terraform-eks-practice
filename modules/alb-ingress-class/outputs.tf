@@ -4,7 +4,7 @@
 
 output "ingress_class_name" {
   description = "Name of the created IngressClass"
-  value       = kubernetes_manifest.alb_ingress_class.manifest.metadata.name
+  value       = var.ingress_class_name
 }
 
 output "alb_scheme" {

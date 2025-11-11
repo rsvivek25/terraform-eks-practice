@@ -7,8 +7,8 @@
 # IngressClassParams - Configures ALB behavior
 ################################################################################
 
-resource "kubernetes_manifest" "alb_ingress_class_params" {
-  manifest = {
+resource "kubectl_manifest" "alb_ingress_class_params" {
+  yaml_body = yamlencode({
     apiVersion = "eks.amazonaws.com/v1"
     kind       = "IngressClassParams"
     
@@ -33,15 +33,15 @@ resource "kubernetes_manifest" "alb_ingress_class_params" {
         }
       ] : null
     }
-  }
+  })
 }
 
 ################################################################################
 # IngressClass - Defines the ALB controller
 ################################################################################
 
-resource "kubernetes_manifest" "alb_ingress_class" {
-  manifest = {
+resource "kubectl_manifest" "alb_ingress_class" {
+  yaml_body = yamlencode({
     apiVersion = "networking.k8s.io/v1"
     kind       = "IngressClass"
     
@@ -63,8 +63,8 @@ resource "kubernetes_manifest" "alb_ingress_class" {
         name     = var.ingress_class_name
       }
     }
-  }
+  })
 
   # Ensure IngressClassParams is created first
-  depends_on = [kubernetes_manifest.alb_ingress_class_params]
+  depends_on = [kubectl_manifest.alb_ingress_class_params]
 }

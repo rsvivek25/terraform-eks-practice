@@ -21,7 +21,7 @@ cluster_upgrade_support_type  = "STANDARD"
 # Network Configuration
 ################################################################################
 
-vpc_id = "vpc-0fcb9a31b99607e0b"
+vpc_id = "vpc-0457de39c6afcb5c5"
 
 # Private Subnet IDs from eks-network output
 private_subnet_ids = [

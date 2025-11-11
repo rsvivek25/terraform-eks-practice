@@ -17,11 +17,11 @@ module "eks" {
   control_plane_subnet_ids = var.subnet_ids
 
   # Cluster Endpoint Access
-  cluster_endpoint_public_access  = false
-  cluster_endpoint_private_access = var.endpoint_private_access
+  endpoint_public_access  = false
+  endpoint_private_access = var.endpoint_private_access
 
   # Additional Security Groups
-  cluster_additional_security_group_ids = var.cluster_additional_security_group_ids
+  additional_security_group_ids = var.cluster_additional_security_group_ids
 
   # Auto Mode Configuration
   cluster_compute_config = {

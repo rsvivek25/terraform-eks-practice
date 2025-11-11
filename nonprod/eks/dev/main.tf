@@ -51,11 +51,12 @@ module "eks" {
   # Basic Cluster Configuration
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
-  subnet_ids      = var.subnet_ids
 
   # Network Configuration
-  endpoint_private_access               = var.endpoint_private_access
-  cluster_additional_security_group_ids = var.cluster_additional_security_group_ids
+  vpc_id                                    = var.vpc_id
+  subnet_ids                                = var.subnet_ids
+  endpoint_private_access                   = var.endpoint_private_access
+  cluster_additional_security_group_ids     = var.cluster_additional_security_group_ids
 
   # Auto Mode Configuration
   auto_mode_node_pools = var.auto_mode_node_pools

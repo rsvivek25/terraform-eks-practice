@@ -17,6 +17,12 @@ aws_region   = "us-east-1"
 cluster_name    = "eks-nonprod-dev"
 cluster_version = "1.33"
 
+################################################################################
+# Network Configuration
+################################################################################
+
+vpc_id = "vpc-0fcb9a31b99607e0b"
+
 # Subnet IDs from eks-network output
 # Update these with actual subnet IDs from: terraform output -state=../../eks-network/terraform.tfstate eks_subnet_ids
 subnet_ids = [
@@ -24,10 +30,6 @@ subnet_ids = [
   "subnet-02bc0bc929536596c", # us-east-1b
   "subnet-02654a38207b7112d"  # us-east-1c
 ]
-
-################################################################################
-# Network Configuration
-################################################################################
 
 endpoint_private_access = true
 

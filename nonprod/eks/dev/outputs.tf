@@ -80,6 +80,20 @@ output "kms_key_arn" {
 }
 
 ################################################################################
+# Access Configuration
+################################################################################
+
+output "cluster_iam_role_arn" {
+  description = "IAM role ARN of the EKS cluster"
+  value       = module.eks.cluster_iam_role_arn
+}
+
+output "access_entries" {
+  description = "Map of access entries created and their attributes"
+  value       = module.eks.access_entries
+}
+
+################################################################################
 # Kubeconfig Command
 ################################################################################
 

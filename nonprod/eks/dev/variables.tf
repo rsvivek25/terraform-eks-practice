@@ -36,14 +36,19 @@ variable "cluster_version" {
   default     = "1.31"
 }
 
+################################################################################
+# Network Configuration
+################################################################################
+
+variable "vpc_id" {
+  description = "VPC ID where EKS cluster will be deployed"
+  type        = string
+}
+
 variable "subnet_ids" {
   description = "List of subnet IDs for EKS cluster (private subnets recommended)"
   type        = list(string)
 }
-
-################################################################################
-# Network Configuration
-################################################################################
 
 variable "endpoint_private_access" {
   description = "Enable private API server endpoint"

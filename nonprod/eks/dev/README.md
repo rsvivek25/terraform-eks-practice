@@ -11,17 +11,25 @@ This directory contains the Terraform configuration for the EKS Dev cluster in t
 
 ## What This Creates
 
-- EKS cluster (Kubernetes 1.31) with Auto Mode
-- KMS key for secrets encryption
-- CloudWatch log group for control plane logs
-- IAM roles for cluster and nodes
-- EKS add-ons:
+- **EKS Cluster** (Kubernetes 1.33) with Auto Mode
+- **Encryption**: KMS key for secrets encryption
+- **Logging**: CloudWatch log group for control plane logs
+- **IAM Roles**: 
+  - Cluster and node roles with least privilege
+  - Pod Identity roles for EFS CSI Driver and External DNS
+- **EKS Add-ons**:
   - VPC CNI
   - kube-proxy
   - CoreDNS
   - Pod Identity Agent
   - EBS CSI Driver
-- IAM role for AWS Load Balancer Controller (IRSA)
+  - **AWS EFS CSI Driver** (with Pod Identity)
+  - **External DNS** (with Pod Identity)
+- **ArgoCD**:
+  - GitOps continuous delivery tool
+  - High Availability setup (configurable)
+  - Notifications controller
+  - Redis HA for session storage
 
 ## Configuration Steps
 
@@ -139,9 +147,66 @@ After deployment, useful outputs:
 ```bash
 terraform output cluster_endpoint
 terraform output cluster_name
-terraform output cluster_oidc_issuer_url
-terraform output alb_controller_iam_role_arn
 terraform output configure_kubectl
+terraform output argocd_namespace
+terraform output argocd_access_url
+terraform output argocd_initial_admin_password_command
+```
+
+## ArgoCD Access
+
+### Get Initial Admin Password
+
+**Linux/macOS:**
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+```
+
+**Windows PowerShell:**
+```powershell
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
+```
+
+### Access ArgoCD UI
+
+1. **Port Forward to ArgoCD Server:**
+   ```bash
+   kubectl port-forward svc/argocd-server -n argocd 8080:443
+   ```
+
+2. **Open Browser:**
+   Navigate to https://localhost:8080
+
+3. **Login:**
+   - Username: `admin`
+   - Password: (from command above)
+
+4. **Change Password (Recommended):**
+   ```bash
+   argocd account update-password
+   ```
+
+### ArgoCD CLI Installation (Optional)
+
+**Linux:**
+```bash
+curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+chmod +x argocd
+sudo mv argocd /usr/local/bin/
+```
+
+**macOS:**
+```bash
+brew install argocd
+```
+
+**Windows:**
+```powershell
+# Using Chocolatey
+choco install argocd-cli
+
+# Or download from releases page
+# https://github.com/argoproj/argo-cd/releases
 ```
 
 ## Cleanup
@@ -149,10 +214,16 @@ terraform output configure_kubectl
 To destroy the cluster:
 
 ```bash
-# Delete all Kubernetes resources first (LoadBalancers, PVCs, etc.)
+# 1. Delete all ArgoCD applications first
+kubectl delete applications --all -n argocd
+
+# 2. Delete all Kubernetes resources (LoadBalancers, PVCs, etc.)
 kubectl delete all --all --all-namespaces
 
-# Then destroy with Terraform
+# 3. Uninstall ArgoCD (optional, Terraform will handle it)
+helm uninstall argocd -n argocd
+
+# 4. Destroy with Terraform
 terraform destroy -var-file=terraform.tfvars
 ```
 
@@ -161,20 +232,39 @@ terraform destroy -var-file=terraform.tfvars
 ### Check Cluster Status
 
 ```bash
-aws eks describe-cluster --name aws-blueprint-nonprod-dev --region us-east-1
+aws eks describe-cluster --name eks-nonprod-dev --region us-east-1
 ```
 
 ### Check Add-on Status
 
 ```bash
-aws eks list-addons --cluster-name aws-blueprint-nonprod-dev --region us-east-1
-aws eks describe-addon --cluster-name aws-blueprint-nonprod-dev --addon-name vpc-cni --region us-east-1
+aws eks list-addons --cluster-name eks-nonprod-dev --region us-east-1
+aws eks describe-addon --cluster-name eks-nonprod-dev --addon-name aws-efs-csi-driver --region us-east-1
 ```
 
 ### View Logs
 
 ```bash
-aws logs tail /aws/eks/aws-blueprint-nonprod-dev/cluster --follow
+aws logs tail /aws/eks/eks-nonprod-dev/cluster --follow
+```
+
+### ArgoCD Troubleshooting
+
+**Check ArgoCD Pods:**
+```bash
+kubectl get pods -n argocd
+kubectl logs -n argocd deployment/argocd-server
+```
+
+**Check ArgoCD Application Status:**
+```bash
+argocd app list
+argocd app get <app-name>
+```
+
+**Sync ArgoCD Application:**
+```bash
+argocd app sync <app-name>
 ```
 
 ## Cost Optimization
@@ -185,3 +275,4 @@ For dev/test environments, consider:
 - Reducing log retention days (7 days for dev)
 - Disabling unused add-ons
 - Scheduling cluster downtime during non-working hours
+- Disable ArgoCD HA mode for non-production (set `argocd_ha_enabled = false`)

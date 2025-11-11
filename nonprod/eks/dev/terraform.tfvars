@@ -86,6 +86,26 @@ enable_zonal_shift = true
 cluster_addons = {}
 
 ################################################################################
+# ArgoCD Configuration
+################################################################################
+
+argocd_namespace            = "argocd"
+argocd_chart_version        = "8.0.0"
+argocd_ha_enabled           = true
+argocd_replicas             = 2
+argocd_redis_ha_enabled     = true
+argocd_server_service_type  = "ClusterIP"
+argocd_server_insecure      = true
+argocd_create_alb_ingress   = true
+argocd_enable_notifications = true
+argocd_enable_dex           = false
+
+# Uncomment and configure if using ALB ingress
+argocd_domain         = "argocd.yourdomain.com"
+# argocd_certificate_arn = "arn:aws:acm:us-east-1:123456789:certificate/xxx"
+argocd_alb_scheme     = "internal"
+
+################################################################################
 # Tags
 ################################################################################
 

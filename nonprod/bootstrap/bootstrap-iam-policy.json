@@ -101,7 +101,10 @@
 				"iam:CreateOpenIDConnectProvider",
 				"iam:DeleteOpenIDConnectProvider",
 				"iam:Get*",
-				"iam:List*"
+				"iam:List*",
+				"iam:DeleteRolePermissionsBoundary",
+				"iam:PutRolePermissionsBoundary",
+				"iam:TagOpenIDConnectProvider"
 			],
 			"Resource": "*"
 		},
@@ -121,7 +124,8 @@
 						"eks.amazonaws.com",
 						"ec2.amazonaws.com",
 						"eks-nodegroup.amazonaws.com",
-						"eks-fargate-pods.amazonaws.com"
+						"eks-fargate-pods.amazonaws.com",
+						"pods.eks.amazonaws.com"
 					]
 				}
 			}

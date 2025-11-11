@@ -187,6 +187,94 @@ variable "cluster_addons" {
 }
 
 ################################################################################
+# ArgoCD Configuration
+################################################################################
+
+variable "argocd_namespace" {
+  description = "Kubernetes namespace for ArgoCD"
+  type        = string
+  default     = "argocd"
+}
+
+variable "argocd_chart_version" {
+  description = "ArgoCD Helm chart version"
+  type        = string
+  default     = "8.0.0"
+}
+
+variable "argocd_ha_enabled" {
+  description = "Enable High Availability for ArgoCD"
+  type        = bool
+  default     = true
+}
+
+variable "argocd_replicas" {
+  description = "Number of ArgoCD replicas when HA is enabled"
+  type        = number
+  default     = 2
+}
+
+variable "argocd_redis_ha_enabled" {
+  description = "Enable Redis HA for ArgoCD"
+  type        = bool
+  default     = true
+}
+
+variable "argocd_server_service_type" {
+  description = "ArgoCD server service type (LoadBalancer/ClusterIP/NodePort)"
+  type        = string
+  default     = "ClusterIP"
+}
+
+variable "argocd_server_host" {
+  description = "ArgoCD server hostname"
+  type        = string
+  default     = ""
+}
+
+variable "argocd_server_insecure" {
+  description = "Run ArgoCD server without TLS"
+  type        = bool
+  default     = true
+}
+
+variable "argocd_create_alb_ingress" {
+  description = "Create AWS Load Balancer ingress for ArgoCD"
+  type        = bool
+  default     = false
+}
+
+variable "argocd_domain" {
+  description = "Domain name for ArgoCD (used with ALB)"
+  type        = string
+  default     = ""
+}
+
+variable "argocd_certificate_arn" {
+  description = "ACM certificate ARN for ArgoCD HTTPS"
+  type        = string
+  default     = ""
+}
+
+variable "argocd_alb_scheme" {
+  description = "ALB scheme for ArgoCD (internet-facing/internal)"
+  type        = string
+  default     = "internet-facing"
+}
+
+variable "argocd_enable_notifications" {
+  description = "Enable ArgoCD notifications controller"
+  type        = bool
+  default     = true
+}
+
+variable "argocd_enable_dex" {
+  description = "Enable Dex for SSO"
+  type        = bool
+  default     = false
+}
+
+################################################################################
 # Tags
 ################################################################################
 

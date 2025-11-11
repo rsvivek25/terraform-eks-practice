@@ -42,6 +42,29 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 ################################################################################
+# EKS Add-on IAM Roles Module
+################################################################################
+
+module "eks_addon_iam_roles" {
+  source = "../../../modules/eks-addon-iam-roles"
+
+  cluster_name      = var.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+
+  # Enable the add-ons you need
+  enable_efs_csi_driver = true
+  enable_external_dns   = true
+
+  # Restrict External DNS to specific hosted zones (optional)
+  # external_dns_route53_zone_arns = [
+  #   "arn:aws:route53:::hostedzone/Z1234567890ABC"
+  # ]
+
+  tags = var.tags
+}
+
+################################################################################
 # Local Variables
 ################################################################################
 
@@ -52,6 +75,24 @@ locals {
     lower(var.enable_default_node_pools) == "general-purpose" ? ["general-purpose"] :
     lower(var.enable_default_node_pools) == "system" ? ["system"] :
     [] # "none" or "false"
+  )
+
+  # Merge user-provided add-ons with add-ons that require IAM roles
+  cluster_addons = merge(
+    var.cluster_addons,
+    {
+      # Amazon EFS CSI Driver - Enables dynamic provisioning of EFS volumes
+      aws-efs-csi-driver = {
+        most_recent              = true
+        service_account_role_arn = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+      }
+
+      # External DNS - Automatically creates DNS records for services and ingresses
+      external-dns = {
+        most_recent              = true
+        service_account_role_arn = module.eks_addon_iam_roles.external_dns_role_arn
+      }
+    }
   )
 }
 
@@ -121,7 +162,7 @@ module "eks" {
 
   
   # Cluster add-ons
-  addons = var.cluster_addons
+  addons = local.cluster_addons
 
   tags = var.tags
 }

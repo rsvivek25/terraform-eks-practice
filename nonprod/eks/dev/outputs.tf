@@ -101,3 +101,22 @@ output "configure_kubectl" {
   description = "Command to configure kubectl"
   value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
 }
+
+################################################################################
+# Add-on IAM Roles
+################################################################################
+
+output "efs_csi_driver_role_arn" {
+  description = "ARN of the IAM role for EFS CSI Driver"
+  value       = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+}
+
+output "external_dns_role_arn" {
+  description = "ARN of the IAM role for External DNS"
+  value       = module.eks_addon_iam_roles.external_dns_role_arn
+}
+
+output "cluster_addons" {
+  description = "Map of enabled cluster add-ons"
+  value       = local.cluster_addons
+}

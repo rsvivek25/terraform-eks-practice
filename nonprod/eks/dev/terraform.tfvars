@@ -81,6 +81,8 @@ enable_zonal_shift = true
 # Cluster Add-ons
 ################################################################################
 
+# Add-ons are configured in main.tf with their IAM roles
+# You can add additional add-ons here if needed
 cluster_addons = {}
 
 ################################################################################

@@ -130,27 +130,7 @@
 			"Sid": "EksAdminAndRead",
 			"Effect": "Allow",
 			"Action": [
-				"eks:CreateCluster",
-				"eks:UpdateClusterConfig",
-				"eks:UpdateClusterVersion",
-				"eks:DeleteCluster",
-				"eks:CreateNodegroup",
-				"eks:UpdateNodegroupConfig",
-				"eks:UpdateNodegroupVersion",
-				"eks:DeleteNodegroup",
-				"eks:CreateFargateProfile",
-				"eks:DeleteFargateProfile",
-				"eks:AssociateEncryptionConfig",
-				"eks:AssociateIdentityProviderConfig",
-				"eks:DisassociateIdentityProviderConfig",
-				"eks:CreateAddon",
-				"eks:UpdateAddon",
-				"eks:DeleteAddon",
-				"eks:AccessKubernetesApi",
-				"eks:TagResource",
-				"eks:UntagResource",
-				"eks:Describe*",
-				"eks:List*"
+				"eks:*"
 			],
 			"Resource": "*"
 		},

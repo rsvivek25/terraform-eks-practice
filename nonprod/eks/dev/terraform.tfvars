@@ -6,16 +6,16 @@
 # General Configuration
 ################################################################################
 
-project_name = "dev"
-environment  = "nonprod"
-aws_region   = "us-east-1"
+environment = "nonprod"
+aws_region  = "us-east-1"
 
 ################################################################################
 # Basic Cluster Configuration
 ################################################################################
 
-cluster_name    = "eks-nonprod-dev"
-cluster_version = "1.33"
+cluster_name                  = "eks-nonprod-dev"
+cluster_version               = "1.33"
+cluster_upgrade_support_type  = "STANDARD"
 
 ################################################################################
 # Network Configuration
@@ -23,55 +23,65 @@ cluster_version = "1.33"
 
 vpc_id = "vpc-0fcb9a31b99607e0b"
 
-# Subnet IDs from eks-network output
-# Update these with actual subnet IDs from: terraform output -state=../../eks-network/terraform.tfstate eks_subnet_ids
-subnet_ids = [
+# Private Subnet IDs from eks-network output
+private_subnet_ids = [
   "subnet-0e73a7d816dea7856", # us-east-1a
   "subnet-02bc0bc929536596c", # us-east-1b
   "subnet-02654a38207b7112d"  # us-east-1c
 ]
 
-endpoint_private_access = true
+################################################################################
+# Cluster Endpoint Access Configuration
+################################################################################
 
-# Security Group ID from eks-network output
-# Update this with actual security group ID from: terraform output -state=../../eks-network/terraform.tfstate eks_cluster_security_group_id
-cluster_additional_security_group_ids = [
-  "sg-098cb306b2a615258" # EKS cluster security group from eks-network
-]
+cluster_endpoint_public_access       = false
+cluster_endpoint_private_access      = true
+cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
 
 ################################################################################
 # Auto Mode Configuration
 ################################################################################
 
-auto_mode_node_pools = ["system"]
+enable_default_node_pools = "system"
 
 ################################################################################
 # Encryption Configuration
 ################################################################################
 
-kms_key_arn                 = "" # Leave empty to create new KMS key
-kms_deletion_window_in_days = 30
+enable_secrets_encryption = true
+kms_key_arn               = "" # Leave empty to create new KMS key
+kms_key_deletion_window   = 30
+kms_enable_key_rotation   = true
 
 ################################################################################
 # Logging Configuration
 ################################################################################
 
-enabled_cluster_log_types = ["api", "audit"]
+enable_cluster_control_plane_logging   = true
+cluster_enabled_log_types              = ["api", "audit"]
+cloudwatch_log_group_retention_in_days = 7
+cloudwatch_log_group_kms_key_id        = ""
+cloudwatch_log_group_class             = "STANDARD"
 
 ################################################################################
 # Access & Security Configuration
 ################################################################################
 
-authentication_mode                         = "API_AND_CONFIG_MAP"
-bootstrap_cluster_creator_admin_permissions = true
-enable_cluster_deletion_protection          = true
+enable_cluster_creator_admin_permissions = true
+additional_security_group_ids         = "sg-098cb306b2a615258"
+enable_cluster_deletion_protection       = true
 
 ################################################################################
-# Upgrade & Advanced Configuration
+# Zonal Shift Configuration
 ################################################################################
 
-support_type        = "STANDARD"
-zonal_shift_enabled = true
+enable_zonal_shift = true
+
+################################################################################
+# Cluster Add-ons
+################################################################################
+
+cluster_addons = {}
 
 ################################################################################
 # Tags

@@ -8,12 +8,6 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "project_name" {
-  description = "Project name"
-  type        = string
-  default     = "aws-blueprint"
-}
-
 variable "environment" {
   description = "Environment name"
   type        = string
@@ -27,13 +21,19 @@ variable "environment" {
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default     = "aws-blueprint-nonprod-dev"
+  default     = "eks-nonprod-dev"
 }
 
 variable "cluster_version" {
   description = "Kubernetes version"
   type        = string
-  default     = "1.31"
+  default     = "1.33"
+}
+
+variable "cluster_upgrade_support_type" {
+  description = "Support type for the cluster upgrade policy (STANDARD, EXTENDED)"
+  type        = string
+  default     = "STANDARD"
 }
 
 ################################################################################
@@ -45,36 +45,52 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs for EKS cluster (private subnets recommended)"
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs for EKS cluster"
   type        = list(string)
 }
 
-variable "endpoint_private_access" {
+################################################################################
+# Cluster Endpoint Access Configuration
+################################################################################
+
+variable "cluster_endpoint_public_access" {
+  description = "Enable public API server endpoint"
+  type        = bool
+  default     = false
+}
+
+variable "cluster_endpoint_private_access" {
   description = "Enable private API server endpoint"
   type        = bool
   default     = true
 }
 
-variable "cluster_additional_security_group_ids" {
-  description = "List of additional security group IDs to attach to the cluster control plane"
+variable "cluster_endpoint_public_access_cidrs" {
+  description = "List of CIDR blocks that can access the public API server endpoint"
   type        = list(string)
-  default     = []
+  default     = ["0.0.0.0/0"]
 }
 
 ################################################################################
 # Auto Mode Configuration
 ################################################################################
 
-variable "auto_mode_node_pools" {
-  description = "List of node pools for EKS Auto Mode"
-  type        = list(string)
-  default     = ["general-purpose"]
+variable "enable_default_node_pools" {
+  description = "Enable default node pools for EKS Auto Mode (both, general-purpose, system, none, true, false)"
+  type        = string
+  default     = "both"
 }
 
 ################################################################################
 # Encryption Configuration
 ################################################################################
+
+variable "enable_secrets_encryption" {
+  description = "Enable envelope encryption for Kubernetes secrets"
+  type        = bool
+  default     = true
+}
 
 variable "kms_key_arn" {
   description = "ARN of the KMS key to use for cluster encryption. If empty, a new key will be created"
@@ -82,36 +98,66 @@ variable "kms_key_arn" {
   default     = ""
 }
 
-variable "kms_deletion_window_in_days" {
+variable "kms_key_deletion_window" {
   description = "Duration in days after which the KMS key is deleted after destruction (7-30)"
   type        = number
   default     = 30
+}
+
+variable "kms_enable_key_rotation" {
+  description = "Enable automatic key rotation for the KMS key"
+  type        = bool
+  default     = true
 }
 
 ################################################################################
 # Logging Configuration
 ################################################################################
 
-variable "enabled_cluster_log_types" {
+variable "enable_cluster_control_plane_logging" {
+  description = "Enable control plane logging to CloudWatch"
+  type        = bool
+  default     = true
+}
+
+variable "cluster_enabled_log_types" {
   description = "List of control plane logging types to enable"
   type        = list(string)
   default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+}
+
+variable "cloudwatch_log_group_retention_in_days" {
+  description = "Number of days to retain log events in CloudWatch"
+  type        = number
+  default     = 7
+}
+
+variable "cloudwatch_log_group_kms_key_id" {
+  description = "KMS key ID to encrypt CloudWatch log group"
+  type        = string
+  default     = ""
+}
+
+variable "cloudwatch_log_group_class" {
+  description = "CloudWatch log group class (STANDARD, INFREQUENT_ACCESS)"
+  type        = string
+  default     = "STANDARD"
 }
 
 ################################################################################
 # Access & Security Configuration
 ################################################################################
 
-variable "authentication_mode" {
-  description = "Authentication mode for the cluster (API, API_AND_CONFIG_MAP, CONFIG_MAP)"
-  type        = string
-  default     = "API_AND_CONFIG_MAP"
-}
-
-variable "bootstrap_cluster_creator_admin_permissions" {
-  description = "Whether to bootstrap cluster creator with admin permissions"
+variable "enable_cluster_creator_admin_permissions" {
+  description = "Whether to enable cluster creator with admin permissions"
   type        = bool
   default     = true
+}
+
+variable "additional_security_group_ids" {
+  description = "Additional security group for the cluster"
+  type        = string
+  default     = ""
 }
 
 variable "enable_cluster_deletion_protection" {
@@ -121,19 +167,23 @@ variable "enable_cluster_deletion_protection" {
 }
 
 ################################################################################
-# Upgrade & Advanced Configuration
+# Zonal Shift Configuration
 ################################################################################
 
-variable "support_type" {
-  description = "Support type for the cluster (STANDARD, EXTENDED)"
-  type        = string
-  default     = "STANDARD"
-}
-
-variable "zonal_shift_enabled" {
-  description = "Enable zonal shift for the cluster"
+variable "enable_zonal_shift" {
+  description = "Enable ARC Zonal Shift for improved availability"
   type        = bool
   default     = true
+}
+
+################################################################################
+# Cluster Add-ons
+################################################################################
+
+variable "cluster_addons" {
+  description = "Map of cluster addon configurations to enable"
+  type        = any
+  default     = {}
 }
 
 ################################################################################

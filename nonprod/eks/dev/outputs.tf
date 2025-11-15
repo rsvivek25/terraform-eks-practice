@@ -108,12 +108,12 @@ output "configure_kubectl" {
 
 output "efs_csi_driver_role_arn" {
   description = "ARN of the IAM role for EFS CSI Driver"
-  value       = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+  value       = module.eks_addon.efs_csi_driver_role_arn
 }
 
 output "external_dns_role_arn" {
   description = "ARN of the IAM role for External DNS"
-  value       = module.eks_addon_iam_roles.external_dns_role_arn
+  value       = module.eks_addon.external_dns_role_arn
 }
 
 output "cluster_addons" {

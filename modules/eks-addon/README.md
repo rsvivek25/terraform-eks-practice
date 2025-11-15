@@ -1,6 +1,6 @@
-# EKS Add-on IAM Roles Module
+# EKS Add-on Module
 
-This module creates IAM roles and policies for common EKS add-ons using **EKS Pod Identity** for service account authentication.
+This module creates IAM roles and installs EKS add-ons using **EKS Pod Identity** for service account authentication.
 
 > **Note:** This module uses EKS Pod Identity (the recommended approach) instead of IRSA (IAM Roles for Service Accounts). Pod Identity is simpler and doesn't require OIDC provider configuration.
 
@@ -16,6 +16,7 @@ This module creates IAM roles and policies for common EKS add-ons using **EKS Po
 - ✅ **EKS Pod Identity** integration - Simpler than IRSA
 - ✅ Automatic pod identity associations for service accounts
 - ✅ Conditional creation - enable only the add-ons you need
+- ✅ Version control - specify exact versions or use latest
 - ✅ Follows AWS best practices for IAM permissions
 - ✅ Reusable across multiple environments
 - ✅ Properly scoped Route53 permissions for External DNS
@@ -25,10 +26,11 @@ This module creates IAM roles and policies for common EKS add-ons using **EKS Po
 ### Basic Example
 
 ```hcl
-module "eks_addon_iam_roles" {
-  source = "../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../modules/eks-addon"
 
-  cluster_name = "my-eks-cluster"
+  cluster_name    = "my-eks-cluster"
+  cluster_version = "1.33"
 
   # Enable the add-ons you need
   enable_efs_csi_driver = true
@@ -44,17 +46,21 @@ module "eks_addon_iam_roles" {
 }
 ```
 
-### Complete Example with External DNS Zone Restrictions
+### Complete Example with Version Control and Zone Restrictions
 
 ```hcl
-module "eks_addon_iam_roles" {
-  source = "../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../modules/eks-addon"
 
-  cluster_name = var.cluster_name
+  cluster_name    = var.cluster_name
+  cluster_version = var.cluster_version
 
   # Enable both add-ons
-  enable_efs_csi_driver = true
-  enable_external_dns   = true
+  enable_efs_csi_driver  = true
+  efs_csi_driver_version = "v2.1.1-eksbuild.1"  # Specific version
+  
+  enable_external_dns  = true
+  external_dns_version = ""  # Use latest version
 
   # Restrict External DNS to specific hosted zones
   external_dns_route53_zone_arns = [

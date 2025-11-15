@@ -86,24 +86,20 @@ enable_zonal_shift = true
 cluster_addons = {}
 
 ################################################################################
-# ArgoCD Configuration
+# EKS Add-on Configuration (EFS CSI Driver, External DNS)
 ################################################################################
 
-argocd_namespace            = "argocd"
-argocd_chart_version        = "8.0.0"
-argocd_ha_enabled           = true
-argocd_replicas             = 2
-argocd_redis_ha_enabled     = true
-argocd_server_service_type  = "ClusterIP"
-argocd_server_insecure      = true
-argocd_create_alb_ingress   = true
-argocd_enable_notifications = true
-argocd_enable_dex           = false
+# EFS CSI Driver
+enable_efs_csi_driver = true
+efs_csi_driver_version = "" # Leave empty for latest version, or specify like "v2.1.1-eksbuild.1"
 
-# Uncomment and configure if using ALB ingress
-argocd_domain         = "argocd-nonprod-dev.ekspilot.com"
-# argocd_certificate_arn = "arn:aws:acm:us-east-1:123456789:certificate/xxx"
-argocd_alb_scheme     = "internal"
+# External DNS
+enable_external_dns = true
+external_dns_version = "" # Leave empty for latest version, or specify like "v1.15.0-eksbuild.1"
+
+# Route53 zones that External DNS can manage
+# Use specific zone ARNs for production: ["arn:aws:route53:::hostedzone/Z1234567890ABC"]
+external_dns_route53_zone_arns = ["arn:aws:route53:::hostedzone/*"]
 
 ################################################################################
 # Tags

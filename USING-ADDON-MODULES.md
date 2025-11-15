@@ -1,6 +1,6 @@
-# Using the EKS Add-on IAM Roles Module in Other Environments
+# Using the EKS Add-on Module in Other Environments
 
-This guide shows how to use the `eks-addon-iam-roles` module in different environments.
+This guide shows how to use the `eks-addon` module in different environments.
 
 > **Note:** This module uses **EKS Pod Identity** instead of IRSA. Pod Identity is simpler and doesn't require OIDC provider configuration.
 
@@ -12,15 +12,15 @@ The module has already been implemented in the **dev** environment. To use it in
 
 ### 1. Add the Module to Your Environment
 
-In your environment's `main.tf` or create a new file `addon-iam-roles.tf`:
+In your environment's `main.tf` or create a new file `eks-addon.tf`:
 
 ```hcl
 ################################################################################
-# EKS Add-on IAM Roles Module
+# EKS Add-on Module
 ################################################################################
 
-module "eks_addon_iam_roles" {
-  source = "../../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../../modules/eks-addon"
 
   cluster_name = var.cluster_name
 
@@ -98,12 +98,12 @@ In your `outputs.tf`:
 
 output "efs_csi_driver_role_arn" {
   description = "ARN of the IAM role for EFS CSI Driver"
-  value       = module.eks_addon_iam_roles.efs_csi_driver_role_arn
+  value       = module.eks_addon.efs_csi_driver_role_arn
 }
 
 output "external_dns_role_arn" {
   description = "ARN of the IAM role for External DNS"
-  value       = module.eks_addon_iam_roles.external_dns_role_arn
+  value       = module.eks_addon.external_dns_role_arn
 }
 
 output "cluster_addons" {
@@ -116,8 +116,8 @@ output "cluster_addons" {
 
 ### Development Environment
 ```hcl
-module "eks_addon_iam_roles" {
-  source = "../../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../../modules/eks-addon"
 
   cluster_name = "eks-nonprod-dev"
 
@@ -132,8 +132,8 @@ module "eks_addon_iam_roles" {
 
 ### Staging Environment
 ```hcl
-module "eks_addon_iam_roles" {
-  source = "../../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../../modules/eks-addon"
 
   cluster_name = "eks-nonprod-staging"
 
@@ -153,8 +153,8 @@ module "eks_addon_iam_roles" {
 
 ### Production Environment
 ```hcl
-module "eks_addon_iam_roles" {
-  source = "../../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../../modules/eks-addon"
 
   cluster_name = "eks-prod"
 
@@ -217,7 +217,7 @@ external_dns_route53_zone_arns = [
 ```
 terraform-eks-practice/
 ├── modules/
-│   └── eks-addon-iam-roles/          # Reusable module
+│   └── eks-addon/                    # Reusable module
 │       ├── main.tf
 │       ├── variables.tf
 │       ├── outputs.tf
@@ -226,11 +226,9 @@ terraform-eks-practice/
 │   ├── eks/
 │   │   ├── dev/
 │   │   │   ├── main.tf               # Uses module
-│   │   │   ├── addon-iam-roles.tf    # Module call
 │   │   │   └── ...
 │   │   └── staging/                  # Can use same module
 │   │       ├── main.tf
-│   │       ├── addon-iam-roles.tf
 │   │       └── ...
 └── prod/
     └── eks/
@@ -262,7 +260,7 @@ terraform-eks-practice/
 ### Module Not Found Error
 
 ```
-Error: Module not found: ../../../modules/eks-addon-iam-roles
+Error: Module not found: ../../../modules/eks-addon
 ```
 
 **Solution:** Verify the relative path to the module from your environment directory. The path should be relative to where you're calling the module from.
@@ -277,6 +275,5 @@ Error: no matching IAM OIDC Provider found
 
 ## Additional Resources
 
-- [Module README](../../../modules/eks-addon-iam-roles/README.md)
-- [EKS Add-ons Documentation](../dev/ADDONS.md)
+- [Module README](../../../modules/eks-addon/README.md)
 - [Terraform Modules Best Practices](https://www.terraform.io/docs/language/modules/develop/index.html)

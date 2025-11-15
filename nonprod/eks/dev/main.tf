@@ -161,23 +161,24 @@ resource "aws_kms_key" "eks" {
 }
 
 ################################################################################
-# EKS Add-on IAM Roles Module
+# EKS Add-on Module
 ################################################################################
 
-module "eks_addon_iam_roles" {
-  source = "../../../modules/eks-addon-iam-roles"
+module "eks_addon" {
+  source = "../../../modules/eks-addon"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
   # Enable the add-ons you need
-  enable_efs_csi_driver = true
-  enable_external_dns   = true
+  enable_efs_csi_driver = var.enable_efs_csi_driver
+  efs_csi_driver_version = var.efs_csi_driver_version
+  
+  enable_external_dns   = var.enable_external_dns
+  external_dns_version  = var.external_dns_version
 
-  # Restrict External DNS to specific hosted zones (optional)
-  # external_dns_route53_zone_arns = [
-  #   "arn:aws:route53:::hostedzone/Z1234567890ABC"
-  # ]
+  # Restrict External DNS to specific hosted zones
+  external_dns_route53_zone_arns = var.external_dns_route53_zone_arns
 
   tags = var.tags
 

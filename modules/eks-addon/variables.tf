@@ -22,10 +22,22 @@ variable "enable_efs_csi_driver" {
   default     = false
 }
 
+variable "efs_csi_driver_version" {
+  description = "Version of EFS CSI Driver add-on. If empty, uses the latest version"
+  type        = string
+  default     = ""
+}
+
 variable "enable_external_dns" {
   description = "Enable IAM role for External DNS add-on"
   type        = bool
   default     = false
+}
+
+variable "external_dns_version" {
+  description = "Version of External DNS add-on. If empty, uses the latest version"
+  type        = string
+  default     = ""
 }
 
 ################################################################################

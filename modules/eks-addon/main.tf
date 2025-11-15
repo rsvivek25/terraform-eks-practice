@@ -144,7 +144,7 @@ resource "aws_eks_addon" "efs_csi_driver" {
 
   cluster_name  = var.cluster_name
   addon_name    = "aws-efs-csi-driver"
-  addon_version = data.aws_eks_addon_version.efs_csi_driver[0].version
+  addon_version = var.efs_csi_driver_version != "" ? var.efs_csi_driver_version : data.aws_eks_addon_version.efs_csi_driver[0].version
 
   # Pod Identity configuration - addon will create the association automatically
   pod_identity_association {
@@ -175,7 +175,7 @@ resource "aws_eks_addon" "external_dns" {
 
   cluster_name  = var.cluster_name
   addon_name    = "external-dns"
-  addon_version = data.aws_eks_addon_version.external_dns[0].version
+  addon_version = var.external_dns_version != "" ? var.external_dns_version : data.aws_eks_addon_version.external_dns[0].version
 
   # Pod Identity configuration - addon will create the association automatically
   pod_identity_association {

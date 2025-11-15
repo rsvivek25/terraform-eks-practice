@@ -14,7 +14,7 @@ aws_region  = "us-east-1"
 ################################################################################
 
 cluster_name                  = "eks-nonprod-dev"
-cluster_version               = "1.32"
+cluster_version               = "1.33"
 cluster_upgrade_support_type  = "STANDARD"
 
 ################################################################################
@@ -91,11 +91,11 @@ cluster_addons = {}
 
 # EFS CSI Driver
 enable_efs_csi_driver = true
-efs_csi_driver_version = "v2.1.12-eksbuild.1" # Leave empty for latest version, or specify like "v2.1.1-eksbuild.1"
+efs_csi_driver_version = "v2.1.13-eksbuild.1" # Leave empty for latest version, or specify like "v2.1.1-eksbuild.1"
 
 # External DNS
 enable_external_dns = true
-external_dns_version = "v0.19.0-eksbuild.2" # Leave empty for latest version, or specify like "v1.15.0-eksbuild.1"
+external_dns_version = "v0.19.0-eksbuild.3" # Leave empty for latest version, or specify like "v1.15.0-eksbuild.1"
 
 # Route53 zones that External DNS can manage
 # Use specific zone ARNs for production: ["arn:aws:route53:::hostedzone/Z1234567890ABC"]
